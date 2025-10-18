@@ -2,3 +2,4 @@ Acheter du pain
 add nvim
 learn hacking
 test 004
+build a tool with python
