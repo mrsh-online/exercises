@@ -51,7 +51,7 @@ while True:
     phrase = input(f'{Fore.MAGENTA}ask: {Style.RESET_ALL}')
     result = talk(phrase)
     if phrase.lower() == 'bye':
-        print('Bye')
+        console.print(Markdown(result[0]['output']))
         break
     print('=================================')
     print(f"{Fore.BLUE}Midori{Style.RESET_ALL} ")
