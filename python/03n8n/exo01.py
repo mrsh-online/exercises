@@ -1,22 +1,59 @@
 import requests
 import json
+import click 
+from colorama import Fore, Style 
+from rich.markdown import Markdown
+from rich.console import Console
 
 
 
+print( f"""{Fore.MAGENTA}
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⣵⣛⣩⠍⠉⣛⣒⣈⠃⠉⢙⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠵⠚⣫⣥⣶⣿⣿⣿⣿⣿⣿⣿⣾⡿⢶⣎⢙⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣇⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠃⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣮⡃⢿⣦⣙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⢠⣿⣿⣿⣿⠟⣫⣿⣿⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⡎⣛⢿⣷⣝⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣯⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⣠⣇⣿⣿⠿⢟⣥⣾⣿⣿⣿⣿⠋⢴⣿⣿⣿⢟⠁⣾⣿⡇⣿⣦⢻⣿⣆⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣷⣿⣿⣿⣿⣿⣿⣿⣿⣿⠋⢠⣿⣿⠟⢁⣴⣿⣿⣿⣿⢋⣿⣿⢠⣿⣿⡿⢣⣾⢠⣿⣿⠇⠹⣿⣇⢻⣿⣧⡹⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⡆⣾⢟⡵⣣⣿⣿⣿⣿⡿⣡⣾⠟⠡⢿⣿⠏⣴⣿⢃⣾⣿⣿⠀⣤⢹⣿⡼⣿⣟⣷⠹⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⡿⢫⠎⣼⣿⡏⡾⡁⢹⣿⣿⡿⢋⢾⡿⢋⢠⣿⢟⣤⣦⡽⣡⢿⣿⣿⢇⢀⢹⡞⣿⡇⣿⣯⢿⡁⢻⣿⣿⢻⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⡟⡰⠃⣼⢿⣿⠃⢱⡇⠻⠿⣋⡴⠏⢀⣴⡏⣊⣵⣿⡿⠟⠑⢡⣿⣿⠟⣼⠨⣿⡇⣿⣿⣿⣿⣿⣇⠘⣿⣿⡏⣿⣿⣿⣿
+⣿⣿⣿⣿⠏⢀⡼⣸⢃⣿⡇⡀⠈⠠⡀⠈⣉⡄⠂⠉⠉⠈⠙⠛⠛⠟⣠⣆⣾⡿⠃⣼⠇⢡⣭⡓⢹⢻⣿⣿⣿⣿⢠⠹⡿⠿⢸⢿⣿⣿
+⣿⣿⣿⡟⣰⣿⢣⢋⣾⣿⢰⠃⣠⡆⢀⣌⣩⠀⣸⣧⣬⣥⣤⣐⠲⣄⣋⣘⣥⢆⣼⢟⣴⣿⣿⣿⠀⠸⣿⣿⣿⢻⡜⡆⣷⣶⢸⣿⣿⣿
+⣿⣿⠛⢡⣿⢣⢏⣾⠿⣛⡉⣼⢻⡇⠘⣿⣿⢀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠛⠿⢿⣟⣆⠀⢹⣿⣿⠀⢷⢻⢽⣿⣿⣿⣿⣿
+⣿⣿⣿⠸⠃⠋⢈⣵⢟⠉⣼⢏⡾⠀⠀⣬⢻⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣤⡀⠀⢠⡀⠛⢰⣿⢿⣿⡆⢈⠊⢸⣿⣿⣿⣿⣿
+⣿⣿⠟⠀⣴⠇⣾⠣⢏⣾⢏⡾⠁⠀⠀⢡⡜⢷⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣬⣵⢂⣾⣿⣸⢹⡇⢸⣆⠘⣿⣿⣿⣿⣿
+⣿⠏⣀⠈⠏⢸⣿⣀⣿⠋⣾⠣⠃⠀⠀⠀⢻⣦⠙⢿⣿⣿⠀⠈⠉⠉⠛⠟⢿⣿⣿⣿⣿⣿⡿⢁⠞⣿⢃⠏⢾⡇⣼⣿⣿⣾⣿⣿⣿⣿
+⢣⣾⣿⠆⢠⣿⣿⠿⢿⣿⣿⡀⠠⠀⠀⠀⠀⠻⣦⡈⣻⣿⡞⣿⣦⣤⡀⠀⣠⣿⣿⣿⣿⡏⠀⣠⢸⡏⠈⢀⠈⡇⠿⠿⠿⣿⣻⣿⣿⣟
+⣿⡿⢣⠆⣾⣿⣿⡧⣷⣮⣭⠁⠀⣀⣴⠖⠀⠀⡈⠻⣿⣿⣿⣾⣿⣟⣫⣴⣿⣿⣿⣿⠏⠀⣸⡟⠈⣠⣤⡌⠀⣇⢾⣿⣿⣿⣿⣿⣿⣿
+⠻⢠⡏⣰⣿⣿⣿⣷⣿⣿⣿⣷⠾⠋⠁⠀⠀⠀⣿⣦⡀⠙⠻⣿⣿⣿⣿⣿⠿⠟⠋⠀⠀⠀⡟⣼⣧⣿⣿⣿⡇⣿⢸⣿⣿⡿⠿⠿⠿⢿
+⣷⣤⢀⣿⣿⣿⠛⢿⠿⠿⠟⢡⣾⡄⠀⠀⠀⢠⣿⣿⣿⣦⡀⠀⠉⠋⢉⠀⣴⣶⣶⢌⠢⢃⡁⢿⣿⣿⣿⣿⠃⣋⣀⣀⣀⣚⡻⣿⣿⣿
+⣿⡏⣸⣿⣿⣿⣿⠆⠐⣿⡇⢸⣿⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣶⣶⣶⣶⡆⠟⣫⣶⣿⣷⡘⣿⡜⠻⢿⢩⣴⣿⣿⣇⢿⣏⢿⣿⡜⢿⣿
+⣭⠁⠿⡻⢿⣿⣿⠀⠀⠻⣷⡀⣙⡀⠠⡸⠿⢿⣿⣟⣛⣛⣛⣛⣛⣻⣿⣡⣾⣿⣿⣿⣿⣷⣮⣍⣀⠠⠉⢻⣿⣿⣿⡘⡏⣾⣿⣧⢤⡝
+⣵⣾⣿⣿⣷⣮⡙⠀⣴⣶⣎⠱⠹⣿⣷⣝⠈⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⣡⠴⣛⣀⠙⢿⣿⣷⢠⣿⣿⣿⣿⢣
+⣿⣿⣿⣿⣿⣿⣿⢠⣿⣿⣿⡇⠇⣿⣿⣿⣷⡀⢹⠸⠿⠛⣛⣛⣛⣛⣛⡷⠙⠛⣿⣿⣿⠟⣡⠞⣱⣾⣿⣿⣿⣶⣬⣉⢸⣿⣿⣿⢃⣾
+⣛⣻⣭⣭⣭⣛⢿⠀⣿⣿⣋⣤⣾⣷⢸⣿⣿⣷⡜⣵⡾⢛⣫⣭⣭⣭⣭⣝⣛⡳⠦⠶⠶⠛⢡⣾⣿⣿⣿⣿⣿⣿⣿⣿⠇⠹⢿⠃⣿⣿
+⣿⣿⣿⣿⣿⣿⣷⡀⣎⠻⣿⣿⣿⣿⡎⢫⣿⣿⡇⠉⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣀⣳⣼⣿⣿⣿⣿⣿⡿⠟⠋⠀⠀⠀⢢⡄⣿⣿
+{Style.RESET_ALL}
+"""
+)
 def talk(x):
+    send = {'content': x}
+    try:
+        res = requests.post('http://localhost:5678/webhook/chat', json=send)
+        res.raise_for_status()  # Raises an error for bad responses (4xx, 5xx)
+        result = res.json()    # Directly parse the JSON response
+        return result
+    except requests.exceptions.RequestException as e:
+        return {'error': str(e)}
 
-    send = {'content':x}
-    
-    res = requests.post('http://localhost:5678/webhook/chat',
-    json=send,
-    )
-    
-    return res.json()
-
-
-
-phrase = input('ask : ')
-result = talk(phrase)
-
-print(result)
-
+console = Console()
+while True:
+    phrase = input(f'{Fore.MAGENTA}ask: {Style.RESET_ALL}')
+    result = talk(phrase)
+    if phrase.lower() == 'bye':
+        print('Bye')
+        break
+    print('=================================')
+    print(f"{Fore.BLUE}Midori{Style.RESET_ALL} ")
+    print('=================================')
+    console.print(Markdown(result[0]['output']))
