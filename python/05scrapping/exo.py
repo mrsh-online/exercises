@@ -24,7 +24,7 @@ for headline in headlines:
         title = headline.get_text(strip=True)
         link = headline.get('href')
         if  not link.startswith('http'):
-            link = f'https://bbc.com/{link}'
+            link = f'https://bbc.com{link}'
         news_data.append({'title':title, 'link': link})
 
 df = pd.DataFrame(news_data)
